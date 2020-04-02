@@ -10,7 +10,7 @@ namespace Hydrozagadka2
         static void Main()
         {
             // Setup the engine and create the main window.
-            SadConsole.Game.Create(150, 50);
+            SadConsole.Game.Create(200, 55);
 
             // Hook the start event so we can add consoles to the system.
             SadConsole.Game.OnInitialize = Init;
@@ -25,7 +25,6 @@ namespace Hydrozagadka2
 static void Init()
 {
     Global.CurrentScreen = new MapScreen();
-    
     Global.CurrentScreen.IsFocused = true;
 }
     }
