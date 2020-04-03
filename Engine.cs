@@ -94,7 +94,7 @@ namespace Hydrozagadka2
 
 
             // Setup player
-            PlayerGlyph = new Cell(Color.White, Color.Black, 1);
+            PlayerGlyph = new Cell(Color.White, Color.Transparent, 1);
             _playerPosition = new Point(23, 12);
             _playerPositionMapGlyph = new Cell();
             _playerPositionMapGlyph.CopyAppearanceFrom(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
