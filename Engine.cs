@@ -80,16 +80,22 @@ namespace Hydrozagadka2
             consoleHeader.Print(65, 1, "HYDROZAGADKA");
             consoleHeader.Parent = MapConsole;
 
-            // Console for displaying stats
+            // Console for displaying front and characters
             ConsoleFront.Font = charactersSizedFont;
-
             ConsoleFront.Position = new Point(0, 0);
             ConsoleFront.Fill(null, null, null);
             ConsoleFront.Parent = MapConsole;
+            ConsoleFront.SetGlyph(2, 4, 2);
+            ConsoleFront.SetGlyph(3, 5, 5);
+            ConsoleFront.SetGlyph(19, 8, 6);
+            ConsoleFront.SetGlyph(16, 2, 3);
+            ConsoleFront.SetGlyph(9, 2, 7);
+            ConsoleFront.SetGlyph(17, 3, 4);
+
 
             // Setup player
             PlayerGlyph = new Cell(Color.White, Color.Black, 1);
-            _playerPosition = new Point(5, 5);
+            _playerPosition = new Point(23, 12);
             _playerPositionMapGlyph = new Cell();
             _playerPositionMapGlyph.CopyAppearanceFrom(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
             PlayerGlyph.CopyAppearanceTo(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
