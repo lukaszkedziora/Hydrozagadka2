@@ -1,9 +1,9 @@
-using System;
-using SadConsole;
-using Console = SadConsole.Console;
 using Microsoft.Xna.Framework;
+using SadConsole;
 // using SadConsole.Components;
 using SadConsole.Input;
+using Console = SadConsole.Console;
+
 
 namespace Hydrozagadka2
 {
@@ -17,9 +17,11 @@ namespace Hydrozagadka2
     public class MapScreen : ContainerConsole
     {
         public Console MapConsole { get; }
+        public Console  ConsoleFront { get; }
         public Cell PlayerGlyph { get; set; }
         private Point _playerPosition;
         private Cell _playerPositionMapGlyph;
+   
 
         public Point PlayerPosition
         {
@@ -27,31 +29,35 @@ namespace Hydrozagadka2
             private set
             {
                 // Test new position
-                if (value.X < 0 || value.X >= MapConsole.Width ||
-                    value.Y < 2 || value.Y >= MapConsole.Height - 10)
+                if (value.X < 0 || value.X >= ConsoleFront.Width ||
+                    value.Y < 2 || value.Y >= ConsoleFront.Height)
                     return;
 
                 // Restore map cell
-                _playerPositionMapGlyph.CopyAppearanceTo(MapConsole[_playerPosition.X, _playerPosition.Y]);
+                _playerPositionMapGlyph.CopyAppearanceTo(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
                 // Move player
                 _playerPosition = value;
                 // Save map cell
-                _playerPositionMapGlyph.CopyAppearanceFrom(MapConsole[_playerPosition.X, _playerPosition.Y]);
+                _playerPositionMapGlyph.CopyAppearanceFrom(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
                 // Draw player
-                PlayerGlyph.CopyAppearanceTo(MapConsole[_playerPosition.X, _playerPosition.Y]);
+                PlayerGlyph.CopyAppearanceTo(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
                 // Redraw the map
-                MapConsole.IsDirty = true;
+                ConsoleFront.IsDirty = true;
             }
         }
 
         public MapScreen()
         {
             SadConsole.Global.LoadFont("colored.font");
+            SadConsole.Global.LoadFont("colored1.font");
+            var charactersSizedFont = SadConsole.Global.Fonts["colored1"].GetFont(SadConsole.Font.FontSizes.One);
             var normalSizedFont = SadConsole.Global.Fonts["colored"].GetFont(SadConsole.Font.FontSizes.One);
-            var mapConsoleWidth = (int)((Global.RenderWidth / Global.FontDefault.Size.X) * 1.0);
-            var mapConsoleHeight = (int)((Global.RenderHeight / Global.FontDefault.Size.Y) * 1.0);
+            var mapConsoleWidth = (int)((Global.RenderWidth / 32));
+            var mapConsoleHeight = (int)((Global.RenderHeight / 32));
             var consoleStats = new Console(100, 5);
             var consoleHeader = new Console(200, 2);
+            ConsoleFront = new Console(Global.RenderWidth / 64, Global.RenderHeight / 64);
+
 
             // Setup map
             MapConsole = new Console(mapConsoleWidth, mapConsoleHeight);
@@ -60,38 +66,48 @@ namespace Hydrozagadka2
             MapConsole.Parent = this;
 
             //MapConsole.Position = new Point(0, 5);
-            MapConsole.Fill(null, Color.Black, null);
+            MapConsole.Fill(null, null, null);
 
             // Console for displaying stats
-            consoleStats.Position = new Point(95, 48);
+            consoleStats.Position = new Point(95, 2);
             consoleStats.Fill(null, Color.LightCoral, null);
             consoleStats.Print(1, 1, "Player stats");
             consoleStats.Parent = MapConsole;
 
             // Console for displaying the header and menu
-            consoleHeader.Position = new Point(0, 0);
+            consoleHeader.Position = new Point(0, 54);
             consoleHeader.Fill(null, Color.LightCoral, null);
             consoleHeader.Print(65, 1, "HYDROZAGADKA");
             consoleHeader.Parent = MapConsole;
+
+            // Console for displaying stats
+            ConsoleFront.Font = charactersSizedFont;
+
+            ConsoleFront.Position = new Point(0, 0);
+            ConsoleFront.Fill(null, null, null);
+            ConsoleFront.Parent = MapConsole;
 
             // Setup player
             PlayerGlyph = new Cell(Color.White, Color.Black, 1);
             _playerPosition = new Point(5, 5);
             _playerPositionMapGlyph = new Cell();
-            _playerPositionMapGlyph.CopyAppearanceFrom(MapConsole[_playerPosition.X, _playerPosition.Y]);
-            PlayerGlyph.CopyAppearanceTo(MapConsole[_playerPosition.X, _playerPosition.Y]);
+            _playerPositionMapGlyph.CopyAppearanceFrom(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
+            PlayerGlyph.CopyAppearanceTo(ConsoleFront[_playerPosition.X, _playerPosition.Y]);
+
         }
         public void DrawMapScreenBackground(Console map)
         {
-            int glyph = 0;
-            for (int row = 0; row < 56; row++)
-            {
-                for (int column = 0; column < 100; column++)
-                {
-                    map.SetGlyph(column, row, glyph);
-                    glyph++;
-                }
-            }
+             int glyph = 0;
+                 for (int column = 0; column < 28; column++)
+             { 
+                 for (int row = 0; row < 50; row++)
+             {
+
+                     map.SetGlyph(row, column, glyph);
+                     glyph++;
+                 }
+             }
+           //map.SetGlyph(20, 20, 8);
         }
         public override bool ProcessKeyboard(Keyboard info)
         {

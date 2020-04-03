@@ -1,0 +1,10 @@
+{
+	"FilePath": "colored1.png",
+    "GlyphHeight": 64,
+    "GlyphPadding": 0,
+    "GlyphWidth": 64,
+
+     "Columns": 10,
+    "Name": "colored1",
+    "SolidGlyphIndex": 3
+}
