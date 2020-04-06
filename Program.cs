@@ -10,7 +10,7 @@ namespace Hydrozagadka2
         static void Main()
         {
             // Setup the engine and create the main window.
-            SadConsole.Game.Create(200, 56);
+            SadConsole.Game.Create(200, 57);
 
             // Hook the start event so we can add consoles to the system.
             SadConsole.Game.OnInitialize = Init;
@@ -18,8 +18,6 @@ namespace Hydrozagadka2
             // Start the game.
             SadConsole.Game.Instance.Run();
             SadConsole.Game.Instance.Dispose();
-
-            
         }
 
 static void Init()

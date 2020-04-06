@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
+using SadConsole.Components;
 
 namespace Hydrozagadka2 {
 
@@ -42,9 +43,9 @@ namespace Hydrozagadka2 {
             var mapConsoleWidth = (int) ((Global.RenderWidth / 32));
             var mapConsoleHeight = (int) ((Global.RenderHeight / 32));
             var consoleStats = new Console (100, 5);
-            var consoleHeader = new Console (200, 2);
+            var consoleHeader = new SadConsole.ControlsConsole (201, 2);
             ConsoleFront = new Console (Global.RenderWidth / 64, Global.RenderHeight / 64);
-            
+            consoleHeader.Components.Add (new MyMouseComponent ());
 
             // Setup map
             MapConsole = new Console (mapConsoleWidth, mapConsoleHeight);
@@ -62,10 +63,16 @@ namespace Hydrozagadka2 {
             consoleStats.Parent = MapConsole;
 
             // Console for displaying the header and menu
-            consoleHeader.Position = new Point (0, 54);
+            consoleHeader.Position = new Point (0, 55);
             consoleHeader.Fill (null, Color.LightCoral, null);
             consoleHeader.Print (65, 1, "HYDROZAGADKA");
             consoleHeader.Parent = MapConsole;
+            consoleHeader.Add (
+                new SadConsole.Controls.Button (20, 2) {
+                    Position = new Point (0, 0),
+                        Text = "Button 1"
+                }
+            );
 
             // Console for displaying front and characters
             ConsoleFront.Font = charactersSizedFont;
@@ -116,6 +123,14 @@ namespace Hydrozagadka2 {
                 return true;
             }
             return false;
+        }
+    }
+    class MyMouseComponent : MouseConsoleComponent {
+        public override void ProcessMouse (SadConsole.Console console, MouseConsoleState state, out bool handled) {
+            if (state.IsOnConsole)
+                console.SetBackground (state.CellPosition.X, state.CellPosition.Y, Color.White.GetRandomColor (SadConsole.Global.Random));
+
+            handled = false;
         }
     }
 
