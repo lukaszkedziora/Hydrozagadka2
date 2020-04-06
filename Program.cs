@@ -23,9 +23,11 @@ namespace Hydrozagadka2
         }
 
 static void Init()
-{
-    Global.CurrentScreen = new MapScreen();
-    Global.CurrentScreen.IsFocused = true;
+{   
+    MapScreen board1 = new MapScreen();
+    board1.IsFocused = true;
+    Global.CurrentScreen = board1.Board1();
+  
 }
     }
-}
+}	
