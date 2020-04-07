@@ -24,7 +24,7 @@ static void Init()
 {   
     MapScreen board1 = new MapScreen();
     board1.IsFocused = true;
-    Global.CurrentScreen = board1.Board1();
+    Global.CurrentScreen = board1.MainMenu();
   
 }
     }

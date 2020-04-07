@@ -1,8 +1,12 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
+using System;
 using SadConsole.Components;
+using SadConsole.Controls;
+using SadConsole.Themes;
 
 namespace Hydrozagadka2 {
 
@@ -10,6 +14,8 @@ namespace Hydrozagadka2 {
     public class MapScreen : ContainerConsole {
         public Console MapConsole { get; set; }
         public Console ConsoleFront { get; set; }
+        public Console consoleBackMenu { get; set; }
+
         public Cell PlayerGlyph { get; set; }
         private Point _playerPosition;
         private Cell _playerPositionMapGlyph;
@@ -32,7 +38,80 @@ namespace Hydrozagadka2 {
                 PlayerGlyph.CopyAppearanceTo (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
                 // Redraw the map
                 ConsoleFront.IsDirty = true;
+                
             }
+        }
+
+        public Console MainMenu () {
+            //Console consoleBackMenu;
+            SadConsole.Global.LoadFont ("main.font");
+            var menuBackFont = SadConsole.Global.Fonts["main"].GetFont (SadConsole.Font.FontSizes.One);
+            var mapConsoleWidth = (int) ((Global.RenderWidth / 32));
+            var mapConsoleHeight = (int) ((Global.RenderHeight / 32));
+            //consoleBackMenu.Components.Add(new MyMouseComponent ());
+
+            consoleBackMenu = new Console (mapConsoleWidth, mapConsoleHeight);
+            consoleBackMenu.Font = menuBackFont;
+            DrawMapScreenBackground (consoleBackMenu);
+            consoleBackMenu.Parent = this;
+
+            var consoleMenu = new SadConsole.ControlsConsole (200, 2);
+            //SadConsole.Global.FontDefault = SadConsole.Global.FontDefault.Master.GetFont(SadConsole.Font.FontSizes.Two);
+            consoleMenu.Position = new Point (0, 55);
+            consoleMenu.Fill (null, null, null);;
+            consoleMenu.Parent = consoleBackMenu;
+            consoleMenu.Components.Add(new MyMouseComponent());
+
+            Button newGameButton = null;
+            Button loadButton = null;
+            Button saveButton = null;
+            Button creditsButton = null;
+            Button exitButton = null;
+            Button helpButton = null;
+
+            consoleMenu.Add (newGameButton = new Button (25, 2) {
+                Text = "New game",
+                    Position = new Point (0, 0)
+            });
+            
+            consoleMenu.Add (loadButton = new Button (25, 2) {
+                Text = "Load game",
+                    Position = new Point (26, 0)
+            });
+
+            consoleMenu.Add (saveButton = new Button (25, 2) {
+                Text = "Save game",
+                    Position = new Point (52, 0)
+
+            });
+
+            consoleMenu.Add (helpButton = new Button (25, 2) {
+                Text = "Help",
+                    Position = new Point (78, 0)
+
+            });
+
+            consoleMenu.Add (creditsButton = new Button (25, 2) {
+                Text = "Credits",
+                    Position = new Point (104, 0)
+            });
+
+            consoleMenu.Add (exitButton = new Button (25, 2) {
+                Text = "Exit",
+                    Position = new Point (130, 0)
+            });
+
+            newGameButton.Click += new System.EventHandler (_cancelButton_Action);
+            //loadButton.Click += new System.EventHandler (_cancelButton_Action);
+            //saveButton.Click += new System.EventHandler (_cancelButton_Action);
+            //exitButton.Click += new System.EventHandler (_cancelButton_Action);
+            //creditsButton.Click += new System.EventHandler (_cancelButton_Action);
+            //helpButton.Click += new System.EventHandler (_cancelButton_Action);
+
+            void _cancelButton_Action (object sender, EventArgs e) {
+                Global.CurrentScreen = Board1 ();
+            }
+            return consoleBackMenu;
         }
 
         public Console Board1 () {
@@ -53,9 +132,6 @@ namespace Hydrozagadka2 {
             DrawMapScreenBackground (MapConsole);
             MapConsole.Parent = this;
 
-            //MapConsole.Position = new Point(0, 5);
-            MapConsole.Fill (null, null, null);
-
             // Console for displaying stats
             consoleStats.Position = new Point (95, 2);
             consoleStats.Fill (null, Color.LightCoral, null);
@@ -67,12 +143,18 @@ namespace Hydrozagadka2 {
             consoleHeader.Fill (null, Color.LightCoral, null);
             consoleHeader.Print (65, 1, "HYDROZAGADKA");
             consoleHeader.Parent = MapConsole;
-            consoleHeader.Add (
-                new SadConsole.Controls.Button (20, 2) {
-                    Position = new Point (0, 0),
-                        Text = "Button 1"
-                }
-            );
+            Button menuButton;
+
+            consoleHeader.Add (menuButton = new Button (20, 2) {
+                Text = "Menu",
+                    Position = new Point (0, 0)
+            });
+            menuButton.Click += new System.EventHandler (_cancelButton_Action);
+
+            void _cancelButton_Action (object sender, EventArgs e) {
+                Global.CurrentScreen = MainMenu();
+
+            }
 
             // Console for displaying front and characters
             ConsoleFront.Font = charactersSizedFont;
@@ -128,10 +210,35 @@ namespace Hydrozagadka2 {
     class MyMouseComponent : MouseConsoleComponent {
         public override void ProcessMouse (SadConsole.Console console, MouseConsoleState state, out bool handled) {
             if (state.IsOnConsole)
-                console.SetBackground (state.CellPosition.X, state.CellPosition.Y, Color.White.GetRandomColor (SadConsole.Global.Random));
+                console.SetForeground (state.CellPosition.X, state.CellPosition.Y, Color.Black);
 
             handled = false;
         }
     }
+
+    
+
+    class MyTheme : SadConsole.Themes.ControlsConsoleTheme {
+        Cell CustomPrintStyle;
+
+        public override void Draw (ControlsConsole console, CellSurface hostSurface) {
+            // Use the existing theme's drawing which clears the console with the FillStyle property
+            base.Draw (console, hostSurface);
+
+            hostSurface.Print (1, 1, "Hello World 2", CustomPrintStyle);
+        }
+    }
+
+    /*class MyConsole : SadConsole.ControlsConsole
+    {
+        public MyConsole(int width, int height) : base(width, height) { }
+
+        public override void Invalidate()
+        {
+            base.Invalidate();
+
+            Print(1, 1, "Hello World", Theme.Colors.Green, Theme.Colors.GreenDark);
+        }
+    }*/
 
 }
