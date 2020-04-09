@@ -15,6 +15,7 @@ namespace Hydrozagadka2 {
         public class MapScreen : ContainerConsole {
         public Console MapConsole { get; set; }
         public Console ConsoleFront { get; set; }
+        public Console ConsoleJola { get; set; }
         public Console consoleBackMenu { get; set; }
 
         public Cell PlayerGlyph { get; set; }
@@ -125,8 +126,9 @@ namespace Hydrozagadka2 {
             var consoleStats = new Console (100, 5);
             var consoleHeader = new SadConsole.ControlsConsole (201, 2);
             ConsoleFront = new Console (Global.RenderWidth / 64, Global.RenderHeight / 64);
+            ConsoleJola = new Console (100, 20);
+
             consoleHeader.Components.Add (new MyMouseComponent ());
-            Human Jola = new Human();
 
 
             // Setup map
@@ -140,6 +142,14 @@ namespace Hydrozagadka2 {
             consoleStats.Fill (null, Color.LightCoral, null);
             consoleStats.Print (1, 1, "Player stats");
             consoleStats.Parent = MapConsole;
+
+             // Dialogue console with Jola
+            //ConsoleJola.Font = normalSizedFont;
+            ConsoleJola.Position = new Point (50, 20);
+            ConsoleJola.Fill (Color.LightCoral, Color.LightCoral, null);
+            ConsoleJola.Print (1, 1, "Player stats");
+            ConsoleJola.Parent = MapConsole;
+            ConsoleJola.IsVisible = false;
 
             // Console for displaying the header and menu
             consoleHeader.Position = new Point (0, 55);
@@ -191,15 +201,19 @@ namespace Hydrozagadka2 {
             }
         }
 
-        public void dialogue(Point point, Console console){
+        public void dialogue(Point point, Console console, Console console1){
             Point Jola = new Point(2,4);
             if (point == Jola)
             {
                 console.IsVisible = false;
+                console1.IsVisible = true;
+
             }
             else
             {
                 console.IsVisible = true;
+                console1.IsVisible = false;
+
             }
            
         } 
@@ -219,7 +233,7 @@ namespace Hydrozagadka2 {
 
             if (newPlayerPosition != PlayerPosition) {
                 PlayerPosition = newPlayerPosition;
-                dialogue(newPlayerPosition, ConsoleFront);
+                dialogue(newPlayerPosition, ConsoleFront, ConsoleJola);
                 return true;
             }
             return false;
