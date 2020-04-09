@@ -2,9 +2,9 @@ namespace Hydrozagadka2 {
 
     public abstract class Characters {
 
-        public string name;
-        public string pictogram;
-        public int[] position;
+        public string Name;
+        public int Glyph;
+        public int[] Position;
 
     }
 }

@@ -213,7 +213,6 @@ namespace Hydrozagadka2 {
             {
                 console.IsVisible = true;
                 console1.IsVisible = false;
-
             }
            
         } 
