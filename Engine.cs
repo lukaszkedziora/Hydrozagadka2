@@ -11,7 +11,8 @@ using SadConsole.Themes;
 namespace Hydrozagadka2 {
 
     // MapScreen - player controls, displaying console
-    public class MapScreen : ContainerConsole {
+    
+        public class MapScreen : ContainerConsole {
         public Console MapConsole { get; set; }
         public Console ConsoleFront { get; set; }
         public Console consoleBackMenu { get; set; }
@@ -125,6 +126,8 @@ namespace Hydrozagadka2 {
             var consoleHeader = new SadConsole.ControlsConsole (201, 2);
             ConsoleFront = new Console (Global.RenderWidth / 64, Global.RenderHeight / 64);
             consoleHeader.Components.Add (new MyMouseComponent ());
+            Human Jola = new Human();
+
 
             // Setup map
             MapConsole = new Console (mapConsoleWidth, mapConsoleHeight);
@@ -187,6 +190,20 @@ namespace Hydrozagadka2 {
                 }
             }
         }
+
+        public void dialogue(Point point, Console console){
+            Point Jola = new Point(2,4);
+            if (point == Jola)
+            {
+                console.IsVisible = false;
+            }
+            else
+            {
+                console.IsVisible = true;
+            }
+           
+        } 
+
         public override bool ProcessKeyboard (Keyboard info) {
             Point newPlayerPosition = PlayerPosition;
 
@@ -202,6 +219,7 @@ namespace Hydrozagadka2 {
 
             if (newPlayerPosition != PlayerPosition) {
                 PlayerPosition = newPlayerPosition;
+                dialogue(newPlayerPosition, ConsoleFront);
                 return true;
             }
             return false;
