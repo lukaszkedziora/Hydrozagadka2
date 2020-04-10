@@ -11,41 +11,12 @@ using SadConsole.Themes;
 namespace Hydrozagadka2 {
 
     // MapScreen - player controls, displaying console
-    
-        public class MapScreen : ContainerConsole {
-        public Console MapConsole { get; set; }
-        public Console ConsoleFront { get; set; }
-        public Console ConsoleJola { get; set; }
+
+    public class Menu : ContainerConsole {
+
         public Console consoleBackMenu { get; set; }
-
-        public Cell PlayerGlyph { get; set; }
-        private Point _playerPosition;
-        private Cell _playerPositionMapGlyph;
-
-        public Point PlayerPosition {
-            get => _playerPosition;
-            private set {
-                // Test new position
-                if (value.X < 0 || value.X >= ConsoleFront.Width ||
-                    value.Y < 2 || value.Y >= ConsoleFront.Height)
-                    return;
-
-                // Restore map cell
-                _playerPositionMapGlyph.CopyAppearanceTo (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
-                // Move player
-                _playerPosition = value;
-                // Save map cell
-                _playerPositionMapGlyph.CopyAppearanceFrom (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
-                // Draw player
-                PlayerGlyph.CopyAppearanceTo (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
-                // Redraw the map
-                ConsoleFront.IsDirty = true;
-                
-            }
-        }
-
-        public Console MainMenu () {
-            //Console consoleBackMenu;
+             
+        public Console ConsoleMenu () {
             SadConsole.Global.LoadFont ("main.font");
             var menuBackFont = SadConsole.Global.Fonts["main"].GetFont (SadConsole.Font.FontSizes.One);
             var mapConsoleWidth = (int) ((Global.RenderWidth / 32));
@@ -54,7 +25,7 @@ namespace Hydrozagadka2 {
 
             consoleBackMenu = new Console (mapConsoleWidth, mapConsoleHeight);
             consoleBackMenu.Font = menuBackFont;
-            DrawMapScreenBackground (consoleBackMenu);
+            //DrawMapScreenBackground (consoleBackMenu);
             consoleBackMenu.Parent = this;
 
             var consoleMenu = new SadConsole.ControlsConsole (200, 2);
@@ -62,7 +33,7 @@ namespace Hydrozagadka2 {
             consoleMenu.Position = new Point (0, 55);
             consoleMenu.Fill (null, null, null);;
             consoleMenu.Parent = consoleBackMenu;
-            consoleMenu.Components.Add(new MyMouseComponent());
+            consoleMenu.IsFocused = false;
 
             Button newGameButton = null;
             Button loadButton = null;
@@ -75,7 +46,7 @@ namespace Hydrozagadka2 {
                 Text = "New game",
                     Position = new Point (0, 0)
             });
-            
+
             consoleMenu.Add (loadButton = new Button (25, 2) {
                 Text = "Load game",
                     Position = new Point (26, 0)
@@ -111,12 +82,45 @@ namespace Hydrozagadka2 {
             //helpButton.Click += new System.EventHandler (_cancelButton_Action);
 
             void _cancelButton_Action (object sender, EventArgs e) {
-                Global.CurrentScreen = Board1 ();
+                Board1 temp = new Board1();
+                temp.IsFocused = true;
+                Global.CurrentScreen = temp.ConsoleBoard1 ();
             }
             return consoleBackMenu;
         }
 
-        public Console Board1 () {
+    }
+
+    public class Board1 : ContainerConsole {
+        public Console MapConsole { get; set; }
+        public Console ConsoleFront { get; set; }
+        public Console ConsoleJola { get; set; }
+        public Cell PlayerGlyph { get; set; }
+        private Point _playerPosition;
+        private Cell _playerPositionMapGlyph;
+
+        public Point PlayerPosition {
+            get => _playerPosition;
+            private set {
+                // Test new position
+                if (value.X < 0 || value.X >= ConsoleFront.Width ||
+                    value.Y < 2 || value.Y >= ConsoleFront.Height)
+                    return;
+
+                // Restore map cell
+                _playerPositionMapGlyph.CopyAppearanceTo (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
+                // Move player
+                _playerPosition = value;
+                // Save map cell
+                _playerPositionMapGlyph.CopyAppearanceFrom (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
+                // Draw player
+                PlayerGlyph.CopyAppearanceTo (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
+                // Redraw the map
+                ConsoleFront.IsDirty = true;
+            }
+        }
+
+        public Console ConsoleBoard1 () {
             SadConsole.Global.LoadFont ("colored.font");
             SadConsole.Global.LoadFont ("colored1.font");
             var charactersSizedFont = SadConsole.Global.Fonts["colored1"].GetFont (SadConsole.Font.FontSizes.One);
@@ -128,8 +132,9 @@ namespace Hydrozagadka2 {
             ConsoleFront = new Console (Global.RenderWidth / 64, Global.RenderHeight / 64);
             ConsoleJola = new Console (100, 20);
 
-            consoleHeader.Components.Add (new MyMouseComponent ());
 
+
+            consoleHeader.Components.Add (new MyMouseComponent ());
 
             // Setup map
             MapConsole = new Console (mapConsoleWidth, mapConsoleHeight);
@@ -143,7 +148,7 @@ namespace Hydrozagadka2 {
             consoleStats.Print (1, 1, "Player stats");
             consoleStats.Parent = MapConsole;
 
-             // Dialogue console with Jola
+            // Dialogue console with Jola
             //ConsoleJola.Font = normalSizedFont;
             ConsoleJola.Position = new Point (50, 20);
             ConsoleJola.Fill (Color.LightCoral, Color.LightCoral, null);
@@ -165,7 +170,7 @@ namespace Hydrozagadka2 {
             menuButton.Click += new System.EventHandler (_cancelButton_Action);
 
             void _cancelButton_Action (object sender, EventArgs e) {
-                Global.CurrentScreen = MainMenu();
+                //Global.CurrentScreen = MainMenu ();
 
             }
 
@@ -189,7 +194,6 @@ namespace Hydrozagadka2 {
             PlayerGlyph.CopyAppearanceTo (ConsoleFront[_playerPosition.X, _playerPosition.Y]);
 
             return MapConsole;
-
         }
         public void DrawMapScreenBackground (Console map) {
             int glyph = 0;
@@ -200,23 +204,19 @@ namespace Hydrozagadka2 {
                 }
             }
         }
-
-        public void dialogue(Point point, Console console, Console console1){
-            Point Jola = new Point(2,4);
-            if (point == Jola)
-            {
+        public void dialogue (Point point, Console console, Console console1) {
+            Point Jola = new Point (2, 4);
+            if (point == Jola) {
                 console.IsVisible = false;
                 console1.IsVisible = true;
 
-            }
-            else
-            {
+            } else {
                 console.IsVisible = true;
                 console1.IsVisible = false;
             }
-           
-        } 
 
+        }
+        
         public override bool ProcessKeyboard (Keyboard info) {
             Point newPlayerPosition = PlayerPosition;
 
@@ -232,7 +232,7 @@ namespace Hydrozagadka2 {
 
             if (newPlayerPosition != PlayerPosition) {
                 PlayerPosition = newPlayerPosition;
-                dialogue(newPlayerPosition, ConsoleFront, ConsoleJola);
+                dialogue (newPlayerPosition, ConsoleFront, ConsoleJola);
                 return true;
             }
             return false;
@@ -246,8 +246,6 @@ namespace Hydrozagadka2 {
             handled = false;
         }
     }
-
-    
 
     class MyTheme : SadConsole.Themes.ControlsConsoleTheme {
         Cell CustomPrintStyle;
