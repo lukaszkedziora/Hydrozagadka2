@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System;
 using SadConsole;
 using Microsoft.Xna.Framework;
 using Console = SadConsole.Console;
@@ -22,9 +23,11 @@ namespace Hydrozagadka2
 
 static void Init()
 {   
-    MapScreen board1 = new MapScreen();
-    board1.IsFocused = true;
-    Global.CurrentScreen = board1.MainMenu();
+   
+    Menu MainMenu = new Menu();
+    //MapScreen board1 = new MapScreen();
+    
+    Global.CurrentScreen = MainMenu.ConsoleMenu();
   
 }
     }
