@@ -13,21 +13,21 @@ namespace Hydrozagadka2 {
     // MapScreen - player controls, displaying console
 
     public class Menu : ContainerConsole {
-
-        public Console consoleBackMenu { get; set; }
-             
+           
         public Console ConsoleMenu () {
+            //Back console for menu
             SadConsole.Global.LoadFont ("main.font");
             var menuBackFont = SadConsole.Global.Fonts["main"].GetFont (SadConsole.Font.FontSizes.One);
             var mapConsoleWidth = (int) ((Global.RenderWidth / 32));
             var mapConsoleHeight = (int) ((Global.RenderHeight / 32));
             //consoleBackMenu.Components.Add(new MyMouseComponent ());
-
-            consoleBackMenu = new Console (mapConsoleWidth, mapConsoleHeight);
+            var consoleBackMenu = new Console (mapConsoleWidth, mapConsoleHeight);
             consoleBackMenu.Font = menuBackFont;
-            //DrawMapScreenBackground (consoleBackMenu);
             consoleBackMenu.Parent = this;
+            View.DrawMapScreenBackground(consoleBackMenu);
+            
 
+            //Main menu buttons console
             var consoleMenu = new SadConsole.ControlsConsole (200, 2);
             //SadConsole.Global.FontDefault = SadConsole.Global.FontDefault.Master.GetFont(SadConsole.Font.FontSizes.Two);
             consoleMenu.Position = new Point (0, 55);
@@ -84,7 +84,11 @@ namespace Hydrozagadka2 {
             void _cancelButton_Action (object sender, EventArgs e) {
                 Board1 temp = new Board1();
                 temp.IsFocused = true;
-                Global.CurrentScreen = temp.ConsoleBoard1 ();
+                Global.CurrentScreen = temp.ConsoleBoard1();
+                Console A = new Console(2, 5);
+                string b;
+                b = A.ToString();
+
             }
             return consoleBackMenu;
         }
@@ -92,7 +96,6 @@ namespace Hydrozagadka2 {
     }
 
     public class Board1 : ContainerConsole {
-        public Console MapConsole { get; set; }
         public Console ConsoleFront { get; set; }
         public Console ConsoleJola { get; set; }
         public Cell PlayerGlyph { get; set; }
@@ -125,21 +128,19 @@ namespace Hydrozagadka2 {
             SadConsole.Global.LoadFont ("colored1.font");
             var charactersSizedFont = SadConsole.Global.Fonts["colored1"].GetFont (SadConsole.Font.FontSizes.One);
             var normalSizedFont = SadConsole.Global.Fonts["colored"].GetFont (SadConsole.Font.FontSizes.One);
-            var mapConsoleWidth = (int) ((Global.RenderWidth / 32));
-            var mapConsoleHeight = (int) ((Global.RenderHeight / 32));
+            var MapConsole = new Console ((Global.RenderWidth / 32), (Global.RenderHeight / 32));
+
             var consoleStats = new Console (100, 5);
             var consoleHeader = new SadConsole.ControlsConsole (201, 2);
             ConsoleFront = new Console (Global.RenderWidth / 64, Global.RenderHeight / 64);
             ConsoleJola = new Console (100, 20);
 
-
-
             consoleHeader.Components.Add (new MyMouseComponent ());
 
             // Setup map
-            MapConsole = new Console (mapConsoleWidth, mapConsoleHeight);
+            
             MapConsole.Font = normalSizedFont;
-            DrawMapScreenBackground (MapConsole);
+            View.DrawMapScreenBackground(MapConsole);
             MapConsole.Parent = this;
 
             // Console for displaying stats
@@ -171,7 +172,6 @@ namespace Hydrozagadka2 {
 
             void _cancelButton_Action (object sender, EventArgs e) {
                 //Global.CurrentScreen = MainMenu ();
-
             }
 
             // Console for displaying front and characters
@@ -195,15 +195,7 @@ namespace Hydrozagadka2 {
 
             return MapConsole;
         }
-        public void DrawMapScreenBackground (Console map) {
-            int glyph = 0;
-            for (int column = 0; column < 28; column++) {
-                for (int row = 0; row < 50; row++) {
-                    map.SetGlyph (row, column, glyph);
-                    glyph++;
-                }
-            }
-        }
+        
         public void dialogue (Point point, Console console, Console console1) {
             Point Jola = new Point (2, 4);
             if (point == Jola) {
