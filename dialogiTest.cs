@@ -16,9 +16,9 @@ namespace Hydrozagadka2
             {
                 connection.Open();
 
-                // read characters (position and glyph)
+                // read characters (position and glyph) - As excluded
                 var selectCharacters = connection.CreateCommand();
-                selectCharacters.CommandText = "SELECT * FROM Characters";
+                selectCharacters.CommandText = "SELECT * FROM Characters WHERE Name != 'As'";
 
                 using (var reader = selectCharacters.ExecuteReader())
                 {
