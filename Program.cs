@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.CSharp.RuntimeBinder;
+using System.Collections.Generic;
 using System;
 using SadConsole;
 using Microsoft.Xna.Framework;
@@ -23,11 +24,12 @@ namespace Hydrozagadka2
 
 static void Init()
 {   
-   
-    Menu MainMenu = new Menu();
+    var Board1 = new Board1();
+    var Menu = new Menu();
+    //Menu MainMenu = new Menu();
     //MapScreen board1 = new MapScreen();
     
-    Global.CurrentScreen = MainMenu.ConsoleMenu();
+    Global.CurrentScreen = Menu.ConsoleMenu();
   
 }
     }

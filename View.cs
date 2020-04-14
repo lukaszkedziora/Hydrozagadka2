@@ -48,11 +48,5 @@ namespace Hydrozagadka2 {
 
         }
 
-        class TitleConsole : Console {
-            public TitleConsole (string title) : base (50, 50) {
-                Fill (Color.White, Color.Black, 176);
-                Print (0, 0, title.Align (HorizontalAlignment.Center, Width), Color.Black, Color.Yellow);
-            }
-        }
     }
 }
