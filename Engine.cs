@@ -1,15 +1,10 @@
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
 using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SadConsole.Components;
+using Microsoft.Data.Sqlite;
 using SadConsole.Controls;
-using SadConsole.Themes;
 
 namespace Hydrozagadka2 {
 
@@ -100,6 +95,7 @@ namespace Hydrozagadka2 {
     public class Board1 : ContainerConsole {
         public Console ConsoleFront { get; set; }
         public SadConsole.ControlsConsole ConsoleJola { get; set; }
+        public String name;
         public Cell PlayerGlyph { get; set; }
         private Point _playerPosition;
         private Cell _playerPositionMapGlyph;
@@ -129,6 +125,7 @@ namespace Hydrozagadka2 {
             SadConsole.Global.LoadFont ("colored.font");
             SadConsole.Global.LoadFont ("colored1.font");
             SadConsole.Global.LoadFont ("colored3.font");
+            int row = 1;
 
             var charactersSizedFont = SadConsole.Global.Fonts["colored1"].GetFont (SadConsole.Font.FontSizes.One);
             var normalSizedFont = SadConsole.Global.Fonts["colored"].GetFont (SadConsole.Font.FontSizes.One);
@@ -166,7 +163,7 @@ namespace Hydrozagadka2 {
 
             //Button dialogue console 
 
-            Button nextButton = new SadConsole.Controls.Button (11);
+            Button nextButton = null;
             Button exitButton = null;
             // var consoleTheme = SadConsole.Themes.Library.Default.Clone();
             // var color = new SadConsole.Themes.Colors ();
@@ -189,7 +186,13 @@ namespace Hydrozagadka2 {
 
             });
 
-            nextButton.Click += new System.EventHandler (_cancelButton_Action);
+            nextButton.Click += new System.EventHandler (_nextButton_Action);
+
+            void _nextButton_Action (object sender, EventArgs e) {
+                row++;
+
+            }
+
             ConsoleJola.Invalidated += (s, e) => {
                 var host = (ControlsConsole) s;
                 Rectangle boxArea = host.Controls[0].Bounds;
@@ -198,13 +201,13 @@ namespace Hydrozagadka2 {
 
                 var themeColors = host.ThemeColors ?? SadConsole.Themes.Library.Default.Colors;
 
-                host.Fill (Color.White, Color.LightCoral, null);
+                //host.Fill (Color.White, Color.LightCoral, null);
+                host.Font = normalSizedFontSmall;
                 //var host2 = new Console(5,6);
                 //host2.Parent = host;
                 //host2.Fill (Color.White, Color.Black, null);
                 //host2.Position = new Point(0,0);
-                host.Print (1, 1, "Hello World", themeColors.Green, themeColors.GreenDark);
-
+                View.PrintDialogues (host, row, name);
             };
 
             // Console for displaying the header and menu
@@ -238,15 +241,45 @@ namespace Hydrozagadka2 {
             return MapConsole;
         }
 
-        public void dialogue (Point point, Console console, Console console1) {
-            Point Jola = new Point (2, 4);
-            if (point == Jola) {
-                console.IsVisible = true;
-                console1.IsVisible = false;
+        public void CheckCharactersPosition (Point point) {
 
-            } else {
-                console.IsVisible = false;
-                console1.IsVisible = true;
+            var connectionStringBuilder = new SqliteConnectionStringBuilder ();
+
+            //Use DB in project directory.  If it does not exist, create it:
+            connectionStringBuilder.DataSource = "./Hydrozagadka2.db";
+
+            using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
+                connection.Open ();
+
+                // read characters (position and glyph) - As excluded
+                var selectCharacters = connection.CreateCommand ();
+                selectCharacters.CommandText = "SELECT * FROM Characters WHERE Name != 'As'";
+
+                using (var reader = selectCharacters.ExecuteReader ()) {
+
+                    while (reader.Read ()) {
+
+                        int positionX = reader.GetInt16 (2);
+                        int positionY = reader.GetInt16 (3);
+                        string name = reader.GetString (1);
+
+                        Point character = new Point (positionX, positionY);
+                        if (character == point) {
+                            ConsoleFront.IsVisible = false;
+                            ConsoleJola.IsVisible = true;
+                            //return name;
+                            break;
+
+                        } else {
+                            ConsoleFront.IsVisible = true;
+                            ConsoleJola.IsVisible = false;
+                            //return null;
+                        }
+
+                    }
+                }
+                //return null;
+
             }
 
         }
@@ -266,8 +299,7 @@ namespace Hydrozagadka2 {
 
             if (newPlayerPosition != PlayerPosition) {
                 PlayerPosition = newPlayerPosition;
-                //var console = new Dialogue (50, 25);
-                dialogue (newPlayerPosition, ConsoleJola, ConsoleFront);
+                CheckCharactersPosition (PlayerPosition);
                 return true;
             }
             return false;
@@ -280,72 +312,72 @@ namespace Hydrozagadka2 {
     //     private Point _playerPosition;
     //     private Cell _playerPositionMapGlyph;
 
-        //     public Dialogue (int width, int height) : base (width, height) { }
+    //     public Dialogue (int width, int height) : base (width, height) { }
 
-        //     protected override void Invalidate () {
-        //         base.Invalidate ();
-        //         // Dialogue console with Jola
-        //         //ConsoleJola.Font = normalSizedFont;
-        //         Position = new Point (50, 20);
-        //         //ConsoleJola.DefaultBackground = Color.Transparent;
-        //         Fill (Color.White, Color.LightCoral, 0);
-        //         //ConsoleJola.Components.Add (new MyMouseComponent ());
-        //         //View.PrintDialogues (ConsoleJola);
-        //         Print (3, 3, "fff");
-        //         //this.Parent = this;
-        //         this.IsVisible = true;
+    //     protected override void Invalidate () {
+    //         base.Invalidate ();
+    //         // Dialogue console with Jola
+    //         //ConsoleJola.Font = normalSizedFont;
+    //         Position = new Point (50, 20);
+    //         //ConsoleJola.DefaultBackground = Color.Transparent;
+    //         Fill (Color.White, Color.LightCoral, 0);
+    //         //ConsoleJola.Components.Add (new MyMouseComponent ());
+    //         //View.PrintDialogues (ConsoleJola);
+    //         Print (3, 3, "fff");
+    //         //this.Parent = this;
+    //         this.IsVisible = true;
 
-        //         //Button dialogue console 
+    //         //Button dialogue console 
 
-        //         Button nextButton = new SadConsole.Controls.Button (11);
-        //         Button exitButton = null;
-        //         //var consoleTheme = SadConsole.Themes.Library.Default.Clone();
-        //         var color = new SadConsole.Themes.Colors ();
-        //         //nextButton.ThemeColors = Microsoft.Xna.Framework.Color.Aquamarine;
-        //         //color.Appearance_ControlNormal.Background = Microsoft.Xna.Framework.Color.Transparent;
-        //         //color.Appearance_ControlNormal.Foreground = Microsoft.Xna.Framework.Color.Black;
-        //         //color.Appearance_ControlFocused.Foreground = Microsoft.Xna.Framework.Color.Black;
+    //         Button nextButton = new SadConsole.Controls.Button (11);
+    //         Button exitButton = null;
+    //         //var consoleTheme = SadConsole.Themes.Library.Default.Clone();
+    //         var color = new SadConsole.Themes.Colors ();
+    //         //nextButton.ThemeColors = Microsoft.Xna.Framework.Color.Aquamarine;
+    //         //color.Appearance_ControlNormal.Background = Microsoft.Xna.Framework.Color.Transparent;
+    //         //color.Appearance_ControlNormal.Foreground = Microsoft.Xna.Framework.Color.Black;
+    //         //color.Appearance_ControlFocused.Foreground = Microsoft.Xna.Framework.Color.Black;
 
-        //         //color.Appearance_ControlSelected.Background = Microsoft.Xna.Framework.
-        //         //ConsoleJola.ThemeColors = color;
+    //         //color.Appearance_ControlSelected.Background = Microsoft.Xna.Framework.
+    //         //ConsoleJola.ThemeColors = color;
 
-        //         this.Add (nextButton = new Button (25) {
-        //             Text = "next",
-        //                 Position = new Point (0, 0),
+    //         this.Add (nextButton = new Button (25) {
+    //             Text = "next",
+    //                 Position = new Point (0, 0),
 
-        //         });
+    //         });
 
-        //         this.Add (exitButton = new Button (25, 2) {
-        //             Text = "exit",
-        //                 Position = new Point (26, 10)
+    //         this.Add (exitButton = new Button (25, 2) {
+    //             Text = "exit",
+    //                 Position = new Point (26, 10)
 
-        //         });
-        //     }
-        // }
+    //         });
+    //     }
+    // }
 
-        // class MyMouseComponent : MouseConsoleComponent {
-        //     public override void ProcessMouse (SadConsole.Console console, MouseConsoleState state, out bool handled) {
-        //         if (state.IsOnConsole)
-        //             console.SetForeground (state.CellPosition.X, state.CellPosition.Y, Color.Black);
-        //         console.SetBackground (state.CellPosition.X, state.CellPosition.Y, Color.Black);
+    // class MyMouseComponent : MouseConsoleComponent {
+    //     public override void ProcessMouse (SadConsole.Console console, MouseConsoleState state, out bool handled) {
+    //         if (state.IsOnConsole)
+    //             console.SetForeground (state.CellPosition.X, state.CellPosition.Y, Color.Black);
+    //         console.SetBackground (state.CellPosition.X, state.CellPosition.Y, Color.Black);
 
-        //         handled = false;
-        //     }
-        // }
+    //         handled = false;
+    //     }
+    // }
 
-        // class MyTheme : SadConsole.Themes.ControlsConsoleTheme {
+    // class MyTheme : SadConsole.Themes.ControlsConsoleTheme {
 
-        // }
+    // }
 
-        // class MyConsole : SadConsole.ControlsConsole {
-        //     public MyConsole (int width, int height) : base (width, height) { }
+    // class MyConsole : SadConsole.ControlsConsole {
+    //     public MyConsole (int width, int height) : base (width, height) { }
 
-        //     protected override void Invalidate () {
-        //         base.Invalidate ();
+    //     protected override void Invalidate () {
+    //         base.Invalidate ();
 
-        //         Print (1, 1, "Hello World", Color.Aqua, Color.Black);
-        //         Fill (Color.Black, Color.White, null);
-        //     }
-        // }
+    //         Print (1, 1, "Hello World", Color.Aqua, Color.Black);
+    //         Fill (Color.Black, Color.White, null);
+    //     }
+    // }
 
-    }
+}
