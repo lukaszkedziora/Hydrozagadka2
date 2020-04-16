@@ -3,16 +3,16 @@ using SadConsole;
 using SadConsole.Input;
 using Console = SadConsole.Console;
 using System;
-using SadConsole.Controls;
 using Microsoft.Data.Sqlite;
+using SadConsole.Controls;
 
 namespace Hydrozagadka2 {
 
     public class View {
-        static public void DrawMapScreenBackground (Console map) {
+        static public void DrawMapScreenBackground (Console map, int x, int y) {
             int glyph = 0;
-            for (int column = 0; column < 28; column++) {
-                for (int row = 0; row < 50; row++) {
+            for (int column = 0; column < x; column++) {
+                for (int row = 0; row < y; row++) {
                     map.SetGlyph (row, column, glyph);
                     glyph++;
                 }
@@ -49,7 +49,6 @@ namespace Hydrozagadka2 {
 
         }
 
-
         public static void PrintDialogues (Console console, int row, string name) {
 
             var connectionStringBuilder = new SqliteConnectionStringBuilder ();
@@ -59,14 +58,24 @@ namespace Hydrozagadka2 {
 
             using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
                 connection.Open ();
-                var selectDIalogue = connection.CreateCommand ();
-                selectDIalogue.CommandText = $"SELECT * FROM Player LEFT JOIN Jola ON SequenceAs = Sequence Where Sequence = {row}";
-                using (var reader = selectDIalogue.ExecuteReader ()) {
-                    reader.Read ();
-                        console.Print (0, 0, $"Jola: {reader.GetString(5)}\n");
-                        console.Print (2, 1, $"Odpowiedź:\n 1 {reader.GetString(2)} \n 2 Wyjdź");    
-                                       
+                var countRows = connection.CreateCommand ();
+                countRows.CommandText = $"SELECT Count(TalksTo) FROM Player LEFT JOIN {name} ON SequenceAs = Sequence WHERE TalksTo = '{name}'";
+
+                int count = Convert.ToInt32 (countRows.ExecuteScalar ());
+
+                if (name != null && row <= count && row != 0) {
+                    var selectDIalogue = connection.CreateCommand ();
+                    selectDIalogue.CommandText = $"SELECT * FROM Player LEFT JOIN {name} ON SequenceAs = Sequence WHERE TalksTo = '{name}' AND  Sequence = {row}";
+                    using (var reader = selectDIalogue.ExecuteReader ()) {
+                        reader.Read ();
+                        console.Print (0, 2, $"{name}: {reader.GetString(5)}", Color.Black, Color.White);
+                        console.Print (0, 5, $"Odpowiedź:", Color.Black);
+                        console.Print (0, 6, $"A:{reader.GetString(2)}", Color.Black, Color.White);
+                        console.Print (0, 7, "B: Wyjdź", Color.Black, Color.White);
+
+                    }
                 }
+
             }
 
         }

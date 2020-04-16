@@ -36,7 +36,7 @@ namespace Hydrozagadka2
 
                 // read dialogues - As and Jola
                 var selectDIalogue = connection.CreateCommand();
-                selectDIalogue.CommandText = "SELECT * FROM Player LEFT JOIN Jola ON SequenceAs = Sequence";
+                selectDIalogue.CommandText = "SELECT * FROM Player LEFT JOIN null ON SequenceAs = Sequence";
 
                 using (var reader = selectDIalogue.ExecuteReader())
                 {

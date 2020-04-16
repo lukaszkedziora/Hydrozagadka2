@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.Xna.Framework;
 using SadConsole;
 using SadConsole.Input;
@@ -22,13 +23,12 @@ namespace Hydrozagadka2 {
             var consoleBackMenu = new Console (mapConsoleWidth, mapConsoleHeight);
             consoleBackMenu.Font = menuBackFont;
             consoleBackMenu.Parent = this;
-            View.DrawMapScreenBackground (consoleBackMenu);
+            View.DrawMapScreenBackground (consoleBackMenu, 28, 50);
 
             //Main menu buttons console
             var consoleMenu = new SadConsole.ControlsConsole (200, 1);
             //SadConsole.Global.FontDefault = SadConsole.Global.FontDefault.Master.GetFont(SadConsole.Font.FontSizes.Two);
             consoleMenu.Position = new Point (0, 56);
-            consoleMenu.Fill (null, null, null);;
             consoleMenu.Parent = consoleBackMenu;
             consoleMenu.IsFocused = false;
 
@@ -78,14 +78,21 @@ namespace Hydrozagadka2 {
             //creditsButton.Click += new System.EventHandler (_cancelButton_Action);
             //helpButton.Click += new System.EventHandler (_cancelButton_Action);
 
+            var color = new SadConsole.Themes.Colors ();
+            color.Appearance_ControlNormal.Background = Microsoft.Xna.Framework.Color.White;
+            color.Appearance_ControlNormal.Foreground = Microsoft.Xna.Framework.Color.Black;
+            color.Appearance_ControlOver.Background = Microsoft.Xna.Framework.Color.Black;
+            color.Appearance_ControlOver.Foreground = Microsoft.Xna.Framework.Color.White;
+            color.Appearance_ControlFocused.Background = Microsoft.Xna.Framework.Color.TransparentBlack;
+            color.Appearance_ControlFocused.Foreground = Microsoft.Xna.Framework.Color.Black;
+            color.Appearance_ControlMouseDown.Background = Microsoft.Xna.Framework.Color.Coral;
+            color.Appearance_ControlMouseDown.Foreground = Microsoft.Xna.Framework.Color.White;
+            consoleMenu.ThemeColors = color;
+
             void _cancelButton_Action (object sender, EventArgs e) {
                 Board1 temp = new Board1 ();
                 temp.IsFocused = true;
                 Global.CurrentScreen = temp.ConsoleBoard1 ();
-                Console A = new Console (2, 5);
-                string b;
-                b = A.ToString ();
-
             }
             return consoleBackMenu;
         }
@@ -94,8 +101,11 @@ namespace Hydrozagadka2 {
 
     public class Board1 : ContainerConsole {
         public Console ConsoleFront { get; set; }
-        public SadConsole.ControlsConsole ConsoleJola { get; set; }
-        public String name;
+        public SadConsole.ControlsConsole ConsoleButtonDialogue { get; set; }
+        public Console ConsoleDialogue;
+        public Console ConsoleDialogueBck;
+        public String name = "Kolega";
+        public Font[] fontsBack = new Font[8];
         public Cell PlayerGlyph { get; set; }
         private Point _playerPosition;
         private Cell _playerPositionMapGlyph;
@@ -122,113 +132,157 @@ namespace Hydrozagadka2 {
         }
 
         public Console ConsoleBoard1 () {
+            //Font and font as background 
             SadConsole.Global.LoadFont ("colored.font");
             SadConsole.Global.LoadFont ("colored1.font");
             SadConsole.Global.LoadFont ("colored3.font");
-            int row = 1;
-
-            var charactersSizedFont = SadConsole.Global.Fonts["colored1"].GetFont (SadConsole.Font.FontSizes.One);
+            SadConsole.Global.LoadFont ("jola.font");
+            SadConsole.Global.LoadFont ("kolega.font");
+            SadConsole.Global.LoadFont ("profesor.font");
+            SadConsole.Global.LoadFont ("agent.font");
+            SadConsole.Global.LoadFont ("sklep.font");
+            SadConsole.Global.LoadFont ("maharadza.font");
+            
+            // Local variable --> fonts 
             var normalSizedFont = SadConsole.Global.Fonts["colored"].GetFont (SadConsole.Font.FontSizes.One);
+            var charactersSizedFont = SadConsole.Global.Fonts["colored1"].GetFont (SadConsole.Font.FontSizes.One);
             var normalSizedFontSmall = SadConsole.Global.Fonts["colored3"].GetFont (SadConsole.Font.FontSizes.One);
-
-            var MapConsole = new Console ((Global.RenderWidth / 32), (Global.RenderHeight / 32));
-
+            var normalJola = SadConsole.Global.Fonts["jola"].GetFont (SadConsole.Font.FontSizes.One);
+            var normalKolega = SadConsole.Global.Fonts["kolega"].GetFont (SadConsole.Font.FontSizes.One);
+            var normalProfesor = SadConsole.Global.Fonts["profesor"].GetFont (SadConsole.Font.FontSizes.One);
+            var normalAgent = SadConsole.Global.Fonts["agent"].GetFont (SadConsole.Font.FontSizes.One);
+            var normalSklep = SadConsole.Global.Fonts["sklep"].GetFont (SadConsole.Font.FontSizes.One);
+            var normalMaharadza = SadConsole.Global.Fonts["maharadza"].GetFont (SadConsole.Font.FontSizes.One);
+           
+            //Fonts array
+            fontsBack[2] = normalJola;
+            fontsBack[3] = normalKolega;
+            fontsBack[4] = normalAgent;
+            fontsBack[5] = normalProfesor;
+            fontsBack[6] = normalSklep;
+            fontsBack[7] = normalMaharadza;
+          
+            //Console declarations
+            int row = 1;
+            var MapConsole = new Console ((Global.RenderWidth / 32), (Global.RenderHeight / 32));           
             var consoleStats = new Console (100, 5);
             var consoleHeader = new SadConsole.ControlsConsole (201, 1);
             ConsoleFront = new Console (Global.RenderWidth / 64, Global.RenderHeight / 64);
-            ConsoleJola = new SadConsole.ControlsConsole (100, 25);
+            ConsoleButtonDialogue = new SadConsole.ControlsConsole (20, 1);
+            ConsoleDialogue = new Console (80, 8);
+            ConsoleDialogueBck = new Console (100, 10);
 
-            //consoleHeader.Components.Add (new MyMouseComponent ());
-
-            // Setup map
-
+            // MapConsole
             MapConsole.Font = normalSizedFont;
-            View.DrawMapScreenBackground (MapConsole);
             MapConsole.Parent = this;
+            View.DrawMapScreenBackground (MapConsole, 28, 50);
+
 
             // Console for displaying stats
             consoleStats.Position = new Point (95, 2);
             consoleStats.Fill (null, Color.LightCoral, null);
-            consoleStats.Font = normalSizedFontSmall;
-            consoleStats.Print (1, 1, "Ą | Ć | Ę | Ł | Ń | Ó | Ś | Ź | Ż");
             consoleStats.Parent = MapConsole;
 
-            //Dialogue console with Jola
-            //ConsoleJola.Font = normalSizedFont;
-            ConsoleJola.Position = new Point (50, 20);
-            //ConsoleJola.DefaultBackground = Color.Transparent;
-            //View.PrintDialogues (ConsoleJola);
-            ConsoleJola.Parent = MapConsole;
-            ConsoleJola.IsVisible = false;
+            //Dialogue console with Jola(back)
+            ConsoleDialogueBck.Parent = MapConsole;
+            ConsoleDialogueBck.IsVisible = false;
+            ConsoleDialogueBck.Position = new Point (50, 20);
 
-            //Button dialogue console 
+            //Dialogue console with Jola(front)
+            ConsoleDialogue.Parent = ConsoleDialogueBck;
+            ConsoleDialogue.Font = normalSizedFontSmall;
+            ConsoleDialogue.Position = new Point (3, 0);
 
+            //Dialogue console with Jola(button)      
+            ConsoleButtonDialogue.Position = new Point (127, 28);
+            ConsoleButtonDialogue.Parent = MapConsole;
+            ConsoleButtonDialogue.IsVisible = false;
             Button nextButton = null;
             Button exitButton = null;
-            // var consoleTheme = SadConsole.Themes.Library.Default.Clone();
-            // var color = new SadConsole.Themes.Colors ();
-            // nextButton.ThemeColors = Microsoft.Xna.Framework.Color.Aquamarine;
-            // color.Appearance_ControlNormal.Background = Microsoft.Xna.Framework.Color.Transparent;
-            // color.Appearance_ControlNormal.Foreground = Microsoft.Xna.Framework.Color.Black;
-            // color.Appearance_ControlFocused.Foreground = Microsoft.Xna.Framework.Color.Black;
-            //color.Appearance_ControlSelected.Background = Microsoft.Xna.Framework.
-            //ConsoleJola.ThemeColors = color;
-
-            ConsoleJola.Add (nextButton = new Button (20) {
+            ConsoleButtonDialogue.Add (nextButton = new Button (10) {
                 Text = "A",
-                    Position = new Point (25, 19),
+                    Position = new Point (0, 0),
 
             });
 
-            ConsoleJola.Add (exitButton = new Button (20) {
+            ConsoleButtonDialogue.Add (exitButton = new Button (10) {
                 Text = "B",
-                    Position = new Point (55, 19)
+                    Position = new Point (10, 0)
 
             });
 
             nextButton.Click += new System.EventHandler (_nextButton_Action);
+            exitButton.Click += new System.EventHandler (_exitButton_Action);
 
             void _nextButton_Action (object sender, EventArgs e) {
+                ConsoleDialogue.Clear ();
                 row++;
+                View.PrintDialogues (ConsoleDialogue, row, name);
 
             }
 
-            ConsoleJola.Invalidated += (s, e) => {
-                var host = (ControlsConsole) s;
-                Rectangle boxArea = host.Controls[0].Bounds;
-                boxArea.Inflate (1, 1);
-                //host.DrawBox (boxArea, new Cell (Color.Yellow, Color.Transparent), null, CellSurface.ConnectedLineThin);
+            void _exitButton_Action (object sender, EventArgs e) {
+                row = 1;
+                ConsoleButtonDialogue.IsVisible = false;
+                ConsoleFront.IsVisible = true;
+                ConsoleDialogueBck.IsVisible = false;
+                ConsoleDialogue.Clear ();
 
-                var themeColors = host.ThemeColors ?? SadConsole.Themes.Library.Default.Colors;
+            }
+            //button colour
+            var color = new SadConsole.Themes.Colors ();
+            color.Appearance_ControlNormal.Background = Microsoft.Xna.Framework.Color.White;
+            color.Appearance_ControlNormal.Foreground = Microsoft.Xna.Framework.Color.Black;
+            color.Appearance_ControlOver.Background = Microsoft.Xna.Framework.Color.Black;
+            color.Appearance_ControlOver.Foreground = Microsoft.Xna.Framework.Color.White;
+            color.Appearance_ControlFocused.Background = Microsoft.Xna.Framework.Color.TransparentBlack;
+            color.Appearance_ControlFocused.Foreground = Microsoft.Xna.Framework.Color.Black;
+            color.Appearance_ControlMouseDown.Background = Microsoft.Xna.Framework.Color.Coral;
+            color.Appearance_ControlMouseDown.Foreground = Microsoft.Xna.Framework.Color.White;
+            ConsoleButtonDialogue.ThemeColors = color;
 
-                //host.Fill (Color.White, Color.LightCoral, null);
-                host.Font = normalSizedFontSmall;
-                //var host2 = new Console(5,6);
-                //host2.Parent = host;
-                //host2.Fill (Color.White, Color.Black, null);
-                //host2.Position = new Point(0,0);
-                View.PrintDialogues (host, row, name);
-            };
+            // ConsoleButtonDialogue.Invalidated += (s, e) => {
+            //     var host = (ControlsConsole) s;
+            //
+            //    Rectangle boxArea = host.Controls[0].Bounds;
+            //     boxArea.Inflate (1, 1);
+            //     //host.DrawBox (boxArea, new Cell (Color.Yellow, Color.Transparent), null, CellSurface.ConnectedLineThin);
+
+            //     var themeColors = host.ThemeColors ?? SadConsole.Themes.Library.Default.Colors;
+
+            //     host.Fill (null, Color.Transparent, null);
+            //     var host2 = new Console(100,8);
+            //     host2.Font = normalSizedFontSmall;
+
+            //     host2.Parent = host;
+            //     host2.Fill (Color.White, Color.Transparent, null);
+            //     host2.Position = new Point(0,0);
+            //     View.PrintDialogues (host2, row, name);
+            // };
 
             // Console for displaying the header and menu
             consoleHeader.Position = new Point (0, 56);
             consoleHeader.Fill (null, Color.LightCoral, null);
             consoleHeader.Parent = MapConsole;
+            consoleHeader.ThemeColors = color;
             Button menuButton;
 
             consoleHeader.Add (menuButton = new Button (20) {
                 Text = "Menu",
                     Position = new Point (0, 0)
             });
-            menuButton.Click += new System.EventHandler (_cancelButton_Action);
+            menuButton.Click += new System.EventHandler (_menuButton_Action);
 
-            void _cancelButton_Action (object sender, EventArgs e) { }
+            void _menuButton_Action (object sender, EventArgs e) {
+                Menu temp = new Menu ();
+                temp.IsFocused = true;
+                Global.CurrentScreen = temp.ConsoleMenu();
+            }
 
             // Console for displaying front and characters
             ConsoleFront.Font = charactersSizedFont;
             ConsoleFront.Position = new Point (0, 0);
             ConsoleFront.Parent = MapConsole;
-            //ConsoleFront.IsVisible = false;
             View.PutCharactersOnBoard (ConsoleFront);
 
             // Setup player
@@ -241,7 +295,7 @@ namespace Hydrozagadka2 {
             return MapConsole;
         }
 
-        public void CheckCharactersPosition (Point point) {
+        public string CheckCharactersPosition (Point point) {
 
             var connectionStringBuilder = new SqliteConnectionStringBuilder ();
 
@@ -261,25 +315,30 @@ namespace Hydrozagadka2 {
 
                         int positionX = reader.GetInt16 (2);
                         int positionY = reader.GetInt16 (3);
-                        string name = reader.GetString (1);
+                        int characterNumber = reader.GetInt16 (0);
 
                         Point character = new Point (positionX, positionY);
                         if (character == point) {
                             ConsoleFront.IsVisible = false;
-                            ConsoleJola.IsVisible = true;
-                            //return name;
-                            break;
+                            ConsoleButtonDialogue.IsVisible = true;
+                            ConsoleDialogueBck.IsVisible = true;
+                            ConsoleDialogueBck.Font = fontsBack[characterNumber];
+                            string name = reader.GetString (1);
+                            View.DrawMapScreenBackground (ConsoleDialogueBck, 10, 100);
+                            View.PrintDialogues (ConsoleDialogue, 1, name);
+
+                            return name;
 
                         } else {
+                            ConsoleDialogue.Clear();
+                            ConsoleDialogueBck.IsVisible = false;
                             ConsoleFront.IsVisible = true;
-                            ConsoleJola.IsVisible = false;
-                            //return null;
+                            ConsoleButtonDialogue.IsVisible = false;
+                            continue;
                         }
-
                     }
                 }
-                //return null;
-
+                return name;
             }
 
         }
@@ -299,7 +358,8 @@ namespace Hydrozagadka2 {
 
             if (newPlayerPosition != PlayerPosition) {
                 PlayerPosition = newPlayerPosition;
-                CheckCharactersPosition (PlayerPosition);
+                name = CheckCharactersPosition (PlayerPosition);
+
                 return true;
             }
             return false;
@@ -307,7 +367,7 @@ namespace Hydrozagadka2 {
     }
     // public class Dialogue : SadConsole.ControlsConsole {
     //     public Console ConsoleFront { get; set; }
-    //     public Console ConsoleJola { get; set; }
+    //     public Console ConsoleButtonDialogue { get; set; }
     //     public Cell PlayerGlyph { get; set; }
     //     private Point _playerPosition;
     //     private Cell _playerPositionMapGlyph;
@@ -317,12 +377,12 @@ namespace Hydrozagadka2 {
     //     protected override void Invalidate () {
     //         base.Invalidate ();
     //         // Dialogue console with Jola
-    //         //ConsoleJola.Font = normalSizedFont;
+    //         //ConsoleButtonDialogue.Font = normalSizedFont;
     //         Position = new Point (50, 20);
-    //         //ConsoleJola.DefaultBackground = Color.Transparent;
+    //         //ConsoleButtonDialogue.DefaultBackground = Color.Transparent;
     //         Fill (Color.White, Color.LightCoral, 0);
-    //         //ConsoleJola.Components.Add (new MyMouseComponent ());
-    //         //View.PrintDialogues (ConsoleJola);
+    //         //ConsoleButtonDialogue.Components.Add (new MyMouseComponent ());
+    //         //View.PrintDialogues (ConsoleButtonDialogue);
     //         Print (3, 3, "fff");
     //         //this.Parent = this;
     //         this.IsVisible = true;
@@ -339,7 +399,7 @@ namespace Hydrozagadka2 {
     //         //color.Appearance_ControlFocused.Foreground = Microsoft.Xna.Framework.Color.Black;
 
     //         //color.Appearance_ControlSelected.Background = Microsoft.Xna.Framework.
-    //         //ConsoleJola.ThemeColors = color;
+    //         //ConsoleButtonDialogue.ThemeColors = color;
 
     //         this.Add (nextButton = new Button (25) {
     //             Text = "next",
