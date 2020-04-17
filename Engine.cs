@@ -5,9 +5,9 @@ using SadConsole.Input;
 using Console = SadConsole.Console;
 using System;
 using Microsoft.Data.Sqlite;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Graphics;
+// using Microsoft.Xna.Framework.Input;
+// using Microsoft.Xna.Framework.Media;
+// using Microsoft.Xna.Framework.Graphics;
 using SadConsole.Controls;
 
 namespace Hydrozagadka2 {
@@ -18,6 +18,7 @@ namespace Hydrozagadka2 {
 
         public Console ConsoleMenu () {
             //Back console for menu
+            var view = new View();
             SadConsole.Global.LoadFont ("main.font");
             var menuBackFont = SadConsole.Global.Fonts["main"].GetFont (SadConsole.Font.FontSizes.One);
             var mapConsoleWidth = (int) ((Global.RenderWidth / 32));
@@ -26,7 +27,7 @@ namespace Hydrozagadka2 {
             var consoleBackMenu = new Console (mapConsoleWidth, mapConsoleHeight);
             consoleBackMenu.Font = menuBackFont;
             consoleBackMenu.Parent = this;
-            View.DrawMapScreenBackground (consoleBackMenu, 28, 50);
+            view.DrawMapScreenBackground (consoleBackMenu, 28, 50);
 
             //Main menu buttons console
             var consoleMenu = new SadConsole.ControlsConsole (200, 1);
@@ -112,6 +113,9 @@ namespace Hydrozagadka2 {
         public Cell PlayerGlyph { get; set; }
         private Point _playerPosition;
         private Cell _playerPositionMapGlyph;
+        View view = new View();
+
+        
 
         public Point PlayerPosition {
             get => _playerPosition;
@@ -162,8 +166,8 @@ namespace Hydrozagadka2 {
             fontsBack[3] = normalKolega;
             fontsBack[4] = normalAgent;
             fontsBack[5] = normalProfesor;
-            fontsBack[6] = normalSklep;
-            fontsBack[7] = normalMaharadza;
+            fontsBack[7] = normalSklep;
+            fontsBack[6] = normalMaharadza;
 
             //Console declarations
             int row = 1;
@@ -178,7 +182,7 @@ namespace Hydrozagadka2 {
             // MapConsole
             MapConsole.Font = normalSizedFont;
             MapConsole.Parent = this;
-            View.DrawMapScreenBackground (MapConsole, 28, 50);
+            view.DrawMapScreenBackground (MapConsole, 28, 50);
 
             // Console for displaying stats
             consoleStats.Position = new Point (95, 2);
@@ -219,7 +223,7 @@ namespace Hydrozagadka2 {
             void _nextButton_Action (object sender, EventArgs e) {
                 ConsoleDialogue.Clear ();
                 row++;
-                View.PrintDialogues (ConsoleDialogue, row, name);
+                view.PrintDialogues (ConsoleDialogue, row, name);
 
             }
 
@@ -286,7 +290,7 @@ namespace Hydrozagadka2 {
             ConsoleFront.Font = charactersFont;
             ConsoleFront.Position = new Point (0, 0);
             ConsoleFront.Parent = MapConsole;
-            View.PutCharactersOnBoard (ConsoleFront);
+            view.PutCharactersOnBoard (ConsoleFront);
 
             // Setup player
             PlayerGlyph = new Cell (Color.White, Color.Transparent, 1);
@@ -319,16 +323,17 @@ namespace Hydrozagadka2 {
                         int positionX = reader.GetInt16 (2);
                         int positionY = reader.GetInt16 (3);
                         int characterNumber = reader.GetInt16 (0);
+                        int characterStatus = reader.GetInt16 (6);
 
                         Point character = new Point (positionX, positionY);
-                        if (character == point) {
+                        if (character == point && characterStatus == 1) {
                             ConsoleFront.IsVisible = false;
                             ConsoleButtonDialogue.IsVisible = true;
                             ConsoleDialogueBck.IsVisible = true;
                             ConsoleDialogueBck.Font = fontsBack[characterNumber];
                             string name = reader.GetString (1);
-                            View.DrawMapScreenBackground (ConsoleDialogueBck, 10, 100);
-                            View.PrintDialogues (ConsoleDialogue, 1, name);
+                            view.DrawMapScreenBackground (ConsoleDialogueBck, 10, 100);
+                            view.PrintDialogues (ConsoleDialogue, 1, name);
 
                             return name;
 
