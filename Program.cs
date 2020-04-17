@@ -1,4 +1,5 @@
-﻿using Microsoft.CSharp.RuntimeBinder;
+﻿using System.Threading.Tasks.Sources;
+using Microsoft.CSharp.RuntimeBinder;
 using System.Collections.Generic;
 using System;
 using SadConsole;
@@ -26,8 +27,8 @@ static void Init()
 {   
     var Board1 = new Board1();
     var Menu = new Menu();
-    //Menu MainMenu = new Menu();
-    //MapScreen board1 = new MapScreen();
+    //var music = new Sound();
+ ;
     
     Global.CurrentScreen = Menu.ConsoleMenu();
   
