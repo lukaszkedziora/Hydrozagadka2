@@ -304,12 +304,8 @@ namespace Hydrozagadka2 {
 
         public string CheckCharactersPosition (Point point) {
 
-            var connectionStringBuilder = new SqliteConnectionStringBuilder ();
 
-            //Use DB in project directory.  If it does not exist, create it:
-            connectionStringBuilder.DataSource = "./Hydrozagadka2.db";
-
-            using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
+            using (var connection = new SqliteConnection (view.connectionStringBuilder.ConnectionString)) {
                 connection.Open ();
 
                 // read characters (position and glyph) - As excluded
