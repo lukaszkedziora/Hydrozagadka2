@@ -34,6 +34,9 @@ namespace Hydrozagadka2 {
             using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
                 connection.Open ();
 
+                // Resets database status before starting a new game
+                ResetStatus();
+
                 // read characters (position and glyph) - As excluded
                 var selectCharacters = connection.CreateCommand ();
                 selectCharacters.CommandText = "SELECT * FROM Characters WHERE Name != 'As'";
@@ -41,11 +44,12 @@ namespace Hydrozagadka2 {
                 using (var reader = selectCharacters.ExecuteReader ()) {
 
                     while (reader.Read ()) {
-
+                        
                         int positionX = Convert.ToInt32 ($"{reader.GetString(2)}");
                         int positionY = Convert.ToInt32 ($"{reader.GetString(3)}");
                         int glyph = Convert.ToInt32 ($"{reader.GetString(4)}");
                         console.SetGlyph (positionX, positionY, glyph);
+                        
 
                     }
                 }
@@ -56,7 +60,7 @@ namespace Hydrozagadka2 {
 
         public void PrintDialogues (Console console, int row, string name) {
 
-        using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
+            using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
                 connection.Open ();
                 var countRows = connection.CreateCommand ();
                 countRows.CommandText = $"SELECT Count(TalksTo) FROM Player LEFT JOIN {name} ON SequenceAs = Sequence WHERE TalksTo = '{name}'";
@@ -72,17 +76,16 @@ namespace Hydrozagadka2 {
                         console.Print (0, 5, "Odpowiedź:", Color.Black);
                         console.Print (0, 6, $"A:{reader.GetString(2)}", Color.Black, Color.White);
                         console.Print (0, 7, "B: Wyjdź", Color.Black, Color.White);
-                        //TODO: StatusChange to zero :))
-
+                        
                     }
                     if (count == row) {
                         UpdateCharacterStatus(name);
                     }
                 }
-
             }
-
         }
+
+        // Changes character's status to 1 (true) based on ChStatus column for a given character
         public void UpdateCharacterStatus (string name) {
         
             using (var connection = new SqliteConnection (connectionStringBuilder.ConnectionString)) {
@@ -97,5 +100,18 @@ namespace Hydrozagadka2 {
                 var statusChanged = updateStatus.ExecuteScalar ();
             }
         }
+
+        // Resets character's status to 0
+        public void ResetStatus(){
+
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString)) {
+                connection.Open();
+
+                var resetStatus = connection.CreateCommand();
+                resetStatus.CommandText = $"UPDATE Characters SET Status = 0 WHERE Name = 'Kolega' OR Name = 'Agent' OR Name = 'Profesor' OR Name = 'Maharadża'";   
+                var result = resetStatus.ExecuteScalar();
+                  
+            }   
+        }  
     }
 }
